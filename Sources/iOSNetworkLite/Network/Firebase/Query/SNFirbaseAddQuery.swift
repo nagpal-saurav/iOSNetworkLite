@@ -20,6 +20,20 @@ struct SNFirbaseAddDocumentQuery: SNFirebaseQuery {
     func executeQuery(completion: @escaping QueryCompletion) {
         var documentRef: DocumentReference? = nil
         documentRef = Firestore.firestore().document(self.documentPath)
-        documentRef?.setData(self.postData)
+        documentRef?.setData(self.postData) { error in
+            var isSucess: Bool = false
+            if let error = error {
+                completion(isSucess.data, error)
+            } else {
+                isSucess = true
+                completion(isSucess.data, nil)
+            }
+        }
+    }
+}
+
+extension Bool {
+    var data: Data {
+        return try! JSONEncoder().encode(self)
     }
 }

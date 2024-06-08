@@ -31,8 +31,8 @@ extension SNFirebaseDataTransmissionService: SNDataTransmissionService {
                         let resposneObject = try JSONDecoder().decode(T.self, from: response)
                         promise(.success(resposneObject))
                     }
-                } catch {
-                    print("repsonse not valid")
+                } catch(let e) {
+                    print("repsonse not valid\(e)")
                     promise(.failure(.responseInvalid(message: "Not valid Json Resposne.")))
                 }
             }

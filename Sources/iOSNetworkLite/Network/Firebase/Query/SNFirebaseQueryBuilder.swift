@@ -14,6 +14,8 @@ struct SNFirebaseQueryBuilder {
             return self.fetchQuery(request: request)
         case .add:
             return try self.addQuery(request: request)
+        case .fetchRandom:
+            return try self.fetchRandomQuery(request: request)
         }
     }
 }
@@ -29,15 +31,28 @@ fileprivate extension SNFirebaseQueryBuilder {
             if request.queryParametersEncodable != nil {
                 do {
                     if let queryDictionary = try request.queryParametersEncodable?.toDictionary() {
-                        return FirebaseCollectionFetchQuery(collectionID: url, queryParameter: queryDictionary)
+                        return FirebaseCollectionFetchQuery(collectionID: url, queryParameter: queryDictionary, orderBy: request.queryRestriction?.orderBy)
                     }
                 } catch {
                     
                 }
             } else {
-                return FirebaseCollectionFetchQuery(collectionID: url, queryParameter: request.queryParameters)
+                return FirebaseCollectionFetchQuery(collectionID: url, queryParameter: request.queryParameters, orderBy: request.queryRestriction?.orderBy)
             }
            
+        case .document(let url):
+            return FirebaseDocumentFetchQuery(documentPath: url)
+        }
+        return nil
+    }
+    
+    static func fetchRandomQuery(request: SNFirebaseRequest) -> SNFirebaseQuery? {
+        guard let firebasePath = request.path as? FirbasePath else {
+            return nil
+        }
+        switch firebasePath {
+        case .collection(let url):
+            return FirebaseCollectionFetchRandomQuery(collectionID: url, queryParameter: request.queryParameters)
         case .document(let url):
             return FirebaseDocumentFetchQuery(documentPath: url)
         }
